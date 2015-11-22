@@ -9,4 +9,4 @@ If you want to use it outside of NNTL, you probably may want to download it from
 
 #### Note for overclockers
 
-CRandomSFMT class contains very tight loops of SSE instructions which may lead to hardware fault on overclocked CPUs. I had to lower CPU frequency from 3900Mhz to 3500Mhz and raise some voltages to make my PC stable (it had been working fine on 3900Mhz for half a year before that, successfully passing all pretty intensive stability tests). You've been warned.
+CRandomSFMT class contains very tight loops of SSE instructions which may lead to hardware faults / BSODs on overclocked CPUs. I had to lower CPU frequency from 3900Mhz to 3500Mhz and raise some voltages to make my PC stable again (it had been working fine on 3900Mhz for half a year before that, successfully passing all available pretty intensive stability tests). You've been warned.
