@@ -7,6 +7,6 @@ Made for [NNTL](https://github.com/Arech/nntl) project, but distributed as stand
 
 If you want to use it outside of NNTL, you probably may want to download it from [original](http://www.agner.org/random/) page.
 
-### Note for overclockers
+#### Note for overclockers
 
 CRandomSFMT class contains very tight loops of SSE instructions which may lead to hardware fault on overclocked CPUs. I had to lower CPU frequency from 3900Mhz to 3500Mhz and raise some voltages to make my PC stable (it had been working fine on 3900Mhz for half a year before that, successfully passing all pretty intensive stability tests). You've been warned.
