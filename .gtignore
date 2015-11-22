@@ -4,7 +4,7 @@
 _extern/*
 _obsolette/
 data/*
-.svn/
+**/.svn
 
 
 #################
