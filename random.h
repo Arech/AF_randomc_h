@@ -13,6 +13,8 @@
 
 namespace Agner_Fog {
 
+#define AF_INT64_SUPPORTED
+
 	constexpr int GEN_ERROR = 0x80000000;//added by Arech
 
 	//////////////////////////////////////////////////////////////////////////
@@ -167,7 +169,7 @@ namespace Agner_Fog {
 #if defined(__GNUC__) || (defined(_MSC_VER) && _MSC_VER >= 1600)
 // Compilers supporting C99 or C++0x have stdint.h defining these integer types
 #include <stdint.h>
-#define INT64_SUPPORTED // Remove this if the compiler doesn't support 64-bit integers
+#define AF_INT64_SUPPORTED // Remove this if the compiler doesn't support 64-bit integers
 #elif defined(_WIN16) || defined(__MSDOS__) || defined(_MSDOS) 
 // 16 bit systems use long int for 32 bit integer.
 	typedef   signed long int int32_t;
@@ -178,14 +180,14 @@ namespace Agner_Fog {
 	typedef unsigned __int32 uint32_t;
 	typedef   signed __int64  int64_t;
 	typedef unsigned __int64 uint64_t;
-#define INT64_SUPPORTED // Remove this if the compiler doesn't support 64-bit integers
+#define AF_INT64_SUPPORTED // Remove this if the compiler doesn't support 64-bit integers
 #else
 // This works with most compilers
 	typedef signed int          int32_t;
 	typedef unsigned int       uint32_t;
 	typedef long long           int64_t;
 	typedef unsigned long long uint64_t;
-#define INT64_SUPPORTED // Remove this if the compiler doesn't support 64-bit integers
+#define AF_INT64_SUPPORTED // Remove this if the compiler doesn't support 64-bit integers
 #endif*/
 
 
@@ -297,7 +299,7 @@ namespace Agner_Fog {
 			if (max <= min) {
 				if (max == min) return min; else return 0x80000000;
 			}
-#ifdef  INT64_SUPPORTED
+#ifdef  AF_INT64_SUPPORTED
 			// 64 bit integers available. Use multiply and shift method
 			uint32_t interval;                    // Length of interval
 			uint64_t longran;                     // Random bits * interval
