@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <emmintrin.h>                 // Define SSE2 intrinsics
 
-namespace Agner_Fog {
+namespace AFog {
 
 #define AF_INT64_SUPPORTED
 
