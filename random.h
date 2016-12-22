@@ -916,11 +916,11 @@ namespace AFog {
 			}
 			do { // Rejection loop
 				longran = (uint64_t)BRandom() * interval;
-				iran = (uint32_t)(longran >> 32);
-				remainder = (uint32_t)longran;
+				iran = static_cast<uint32_t>(longran >> 32);
+				remainder = static_cast<uint32_t>(longran & 0xFFFFFFFF);
 			} while (remainder > RLimit);
 			// Convert back to signed and return result
-			return (int32_t)iran + min;
+			return static_cast<int32_t>(iran) + min;
 		}
 
 		double Random()                              // Output random floating point number
