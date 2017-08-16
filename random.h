@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <emmintrin.h>                 // Define SSE2 intrinsics
 
+#pragma warning ( push , 3 )
+
 namespace AFog {
 
 #define AF_INT64_SUPPORTED
@@ -245,7 +247,7 @@ namespace AFog {
 			for (int i = 0; i < 37; i++) BRandom();
 		}
 
-
+#pragma warning (push, 3)
 		void RandomInitByArray(int const seeds[], int NumSeeds) // Seed by more than 32 bits
 		{
 			// Seed by more than 32 bits
@@ -275,6 +277,7 @@ namespace AFog {
 			mti = 0;
 			for (int i = 0; i <= MERS_N; i++) BRandom();
 		}
+#pragma warning (pop)
 
 		int IRandom(int min, int max)     // Output random integer
 		{
@@ -449,7 +452,7 @@ namespace AFog {
 			// returns a random number between 0 and 1:
 			return (double)BRandom() * (1. / (65536.*65536.));
 		}
-
+		
 		uint32_t BRandom()                 // Output random bits
 		{
 			uint64_t sum;
@@ -761,10 +764,12 @@ namespace AFog {
 #endif
 
 	// Class for SFMT generator with or without Mother-Of-All generator
+	
+template<bool UseMother>
 	class CRandomSFMT {                              // Encapsulate random number generator
 	public:
-		CRandomSFMT(int seed, int IncludeMother = 0) {// Constructor
-			UseMother = IncludeMother;
+		CRandomSFMT(int seed){//, int IncludeMother = 0) {// Constructor
+			//UseMother = IncludeMother;
 			LastInterval = 0;
 			RandomInit(seed);
 		}
@@ -1072,7 +1077,7 @@ namespace AFog {
 		uint32_t ix;                                  // Index into state array
 		uint32_t LastInterval;                        // Last interval length for IRandom
 		uint32_t RLimit;                              // Rejection limit used by IRandom
-		uint32_t UseMother;                           // Combine with Mother-Of-All generator
+		//uint32_t UseMother;                           // Combine with Mother-Of-All generator
 		__m128i  mask;                                // AND mask
 		__m128i  state[SFMT_N];                       // State vector for SFMT generator
 		uint32_t MotherState[5];                      // State vector for Mother-Of-All generator
@@ -1080,19 +1085,20 @@ namespace AFog {
 
 	// Class for SFMT generator without Mother-Of-All generator
 	// Derived from CRandomSFMT
-	class CRandomSFMT0 : public CRandomSFMT {
+	class CRandomSFMT0 : public CRandomSFMT<false> {
 	public:
-		CRandomSFMT0(int seed) : CRandomSFMT(seed, 0) {}
+		CRandomSFMT0(int seed) : CRandomSFMT<false>(seed) {}//, 0) {}
 	};
 
 	// Class for SFMT generator combined with Mother-Of-All generator
 	// Derived from CRandomSFMT
-	class CRandomSFMT1 : public CRandomSFMT {
+	class CRandomSFMT1 : public CRandomSFMT<true> {
 	public:
-		CRandomSFMT1(int seed) : CRandomSFMT(seed, 1) {}
+		CRandomSFMT1(int seed) : CRandomSFMT<true>(seed) {}//, 1) {}
 	};
 
 #endif // SFMT_H
 
-
 }
+
+#pragma warning ( pop )
