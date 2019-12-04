@@ -4,6 +4,8 @@
 // for NNTL stuff has been removed(commented out) or simplified.
 // Warning 6385 has been disabled for SMFT::BRandom() function.
 // Corrected SMFT::MotherBits() to make MSVC run-time checker happy.
+// added float FRandom() to CRandomSFMT class and created struct has_FRandom<> that checks existence of this function in a class
+// added template<T> T FPRandom() for each class to hide Random/FRandom implementations
 // All rights belongs to respective authors of original code.
 // 
 // For smft.h MEXP is (unjustifiedly) chosen to be #define MEXP 19937 instead of default #define MEXP 11213.
@@ -235,6 +237,9 @@ namespace AFog {
 #endif
 
 	public:
+		typedef int seed_t;
+
+	public:
 		CRandomMersenne(int seed) {         // Constructor
 			RandomInit(seed); LastInterval = 0;
 		}
@@ -357,6 +362,11 @@ namespace AFog {
 			// Multiply by 2^(-32)
 			return (double)BRandom() * (1. / (65536.*65536.));
 		}
+		//////////////////////////////////////////////////////////////////////////
+		//addition by Arech, all bugs are mine
+		template<typename T>
+		::std::enable_if_t<::std::is_floating_point<T>::value, double> FPRandom()noexcept { return Random(); }
+		//////////////////////////////////////////////////////////////////////////
 
 		uint32_t BRandom()                 // Output random bits
 		{
@@ -415,6 +425,9 @@ namespace AFog {
 
 	class CRandomMother {                  // Encapsulate random number generator
 	public:
+		typedef int seed_t;
+
+	public:
 		void RandomInit(int seed)          // Initialization
 		{
 			int i;
@@ -452,6 +465,12 @@ namespace AFog {
 			// returns a random number between 0 and 1:
 			return (double)BRandom() * (1. / (65536.*65536.));
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+		//addition by Arech, all bugs are mine
+		template<typename T>
+		::std::enable_if_t<::std::is_floating_point<T>::value, double> FPRandom()noexcept { return Random(); }
+		//////////////////////////////////////////////////////////////////////////
 		
 		uint32_t BRandom()                 // Output random bits
 		{
@@ -768,6 +787,9 @@ namespace AFog {
 template<bool UseMother>
 	class CRandomSFMT {                              // Encapsulate random number generator
 	public:
+		typedef int seed_t;
+
+	public:
 		CRandomSFMT(int seed){//, int IncludeMother = 0) {// Constructor
 			//UseMother = IncludeMother;
 			LastInterval = 0;
@@ -950,6 +972,31 @@ template<bool UseMother>
 			return (int64_t)(r >> 12) * (1. / (67108864.0*67108864.0));  // (r >> 12)*2^(-52)
 		}
 
+		//////////////////////////////////////////////////////////////////////////
+		//added by Arech, all bugs are mine. See also struct has_FRandom<> that checks existence of this function in a class
+		float FRandom()noexcept                            // Output random floating point number
+		{
+			// Output random floating point number
+			if (ix >= SFMT_N * 4) {
+				// Make sure we have at least one 32-bit numbers
+				Generate();
+			}
+			uint32_t r = *((uint32_t*)state + ix++);
+			if (UseMother) {
+				// We need 32 bits from Mother-Of-All generator
+				r += MotherBits();
+			}
+			// 23 bits resolution (leaving computation in int64 & double to preserve all bits)
+			return static_cast<float>((int64_t)(r >> 9) * (1. / (2048.0*4096.0)));  // (r >> 9)*2^(-23)
+		}
+
+		template<typename T>
+		::std::enable_if_t<::std::is_same<double, T>::value, double> FPRandom()noexcept { return Random(); }
+		template<typename T>
+		::std::enable_if_t<::std::is_same<float, T>::value, float> FPRandom()noexcept { return FRandom(); }
+
+		//////////////////////////////////////////////////////////////////////////
+
 #pragma warning(disable: 6385)
 		uint32_t BRandom()                           // Output random bits
 		{
@@ -1096,6 +1143,30 @@ template<bool UseMother>
 	public:
 		CRandomSFMT1(int seed) : CRandomSFMT<true>(seed) {}//, 1) {}
 	};
+
+	//////////////////////////////////////////////////////////////////////////
+	// added by Arech, check if float FRandom() exists in a class
+	// thanks to http://stackoverflow.com/a/16824239/1974258
+	template<typename C>
+	struct has_FRandom {
+	private:
+		template<typename T>
+		static constexpr auto check(T*)
+			-> typename
+			std::is_same<
+			decltype(std::declval<T>().FRandom()),
+			float    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			>::type;  // attempt to call it and see if the return type is correct
+
+		template<typename>
+		static constexpr std::false_type check(...);
+
+		typedef decltype(check<C>(0)) type;
+
+	public:
+		static constexpr bool value = type::value;
+	};
+	//////////////////////////////////////////////////////////////////////////
 
 #endif // SFMT_H
 
